@@ -8,8 +8,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js" integrity="sha512-hZf9Qhp3rlDJBvAKvmiG+goaaKRZA6LKUO35oK6EsM0/kjPK32Yw7URqrq3Q+Nvbbt8Usss+IekL7CRn83dYmw==" crossorigin="anonymous"></script>
 </head>
 <body>
-    <h1>hiiiii</h1>
+    <h1>
+        Covid-19 Info From Around The World
+    </h1>
+    <div class="continents-btns">
+
+    </div>
     <canvas id="myChart" width="400" height="400"></canvas>
+
+
     
     
     <script>
@@ -24,6 +31,19 @@
             constructor(name, code) {
                 this.name = name;
                 this.code = code;
+            }
+
+            // 1. confirmed 2. deaths 3. recovered 4.critical 5. total cases (the same as 1?), 6.new cases 7.total deaths(same as 2?) 8.new deaths 9.total recovered(same as 3?) 10.in critical condition(same as 4?)
+            setCovidInfo (confirmed, deaths, recovered, critical, totalCases, newCases, totalDeaths, newDeaths, totalRecovered) {
+                this.confirmed = confirmed;
+                this.deaths = deaths;
+                this.recovered = recovered;
+                this.critical = critical;
+                this.totalCases = totalCases;
+                this.newCases = newCases;
+                this.totalDeaths = totalDeaths;
+                this.newDeaths = newDeaths;
+                this.totalRecovered = totalRecovered;
             }
         }
 
@@ -40,16 +60,19 @@
             // create an array of continents objects, each holds a countries array
             const continents = await createContinentArr();
             console.log(continents);
+            // create information of continent: each state holds: 1. confirmed 2. deaths 3. recovered 4.critical 5. total cases (the same as 1?), 6.new cases 7.total deaths(same as 2?) 8.new deaths 9.total recovered(same as 3?) 10.in critical condition(same as 4?)
+            // add btns for the continents
+            addContinentsBtns(continents);
 
             // add events listeners
-            // document.querySelector(continentBtn).addEventListener('click', continentHandler);
-            // document.querySelector(countryBtn).addEventListener('click',countryHandler); //TODO
+            document.querySelector('.continent-btn').addEventListener('click', continentHandler);
+            // document.querySelector('.continent-btn-info').addEventListener('click', continentInfoHandler);
+            // document.querySelector('.country-btn').addEventListener('click',countryHandler); //TODO
         })()
         
         async function createContinentArr() { //TODO
             const countryData = await fetchAndJson(`${proxy}=${countriesAPI}`);
             return continents = countryData.reduce(fromAPIToContinentsArr, []);
-            
         }
 
         function fromAPIToContinentsArr(continentsArr, country) { //TODO
@@ -65,17 +88,31 @@
             return continentsArr;
         }
 
-        function coninentHandler() {
-            
+        function addContinentsBtns(continents) {
+            const contDiv = document.querySelector('.continents-btns');
+            continents.forEach(continent => {
+                // if there is a name of continent
+                if (continent.name) {
+                    const btn = document.createElement('button')
+                    btn.innerText = `${continent.name}`;
+                    btn.classList.add('continent-btn');
+                    contDiv.appendChild(btn);
+                }
+            });
+        }
+
+        function continentHandler() {
+            // check which continent is it
+            // display the continent info - (confirmed/deaths/recovered/critical)
+
+            // add the countries of the continent
         }
 
         function countryHandler() {
             
         }
 
-        // create information of continent
-
-        // display the continent info - (confirmed/deaths/recovered/critical)
+        
 
         // create information of country
 
