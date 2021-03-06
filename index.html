@@ -49,6 +49,7 @@
 
         const countriesAPI = 'https://restcountries.herokuapp.com/api/v1';
         const proxy = 'http://api.allorigins.win/raw?url';
+        const covidAPI = 'https://corona-api.com/countries';
 
 
         async function fetchAndJson(url) {
@@ -61,6 +62,13 @@
             const continents = await createContinentArr();
             console.log(continents);
             // create information of continent: each state holds: 1. confirmed 2. deaths 3. recovered 4.critical 5. total cases (the same as 1?), 6.new cases 7.total deaths(same as 2?) 8.new deaths 9.total recovered(same as 3?) 10.in critical condition(same as 4?)
+            await createCovidData(continents);
+            continents.map(cont => {
+                cont.countries.map(cou => {
+                    console.log(cou)
+                })
+            })
+
             // add btns for the continents
             addContinentsBtns(continents);
 
@@ -75,7 +83,7 @@
             return continents = countryData.reduce(fromAPIToContinentsArr, []);
         }
 
-        function fromAPIToContinentsArr(continentsArr, country) { //TODO
+        function fromAPIToContinentsArr(continentsArr, country) {
             // if continent exist in the array
             const continentI = continentsArr.findIndex((value) => value.name === country.region);
             if (continentI != -1) {
@@ -86,6 +94,28 @@
             }
             
             return continentsArr;
+        }
+
+        async function createCovidData(continents) {
+            const covidData = await fetchAndJson(covidAPI);
+            console.log(covidData);
+            continents.forEach(cont => {
+                if (cont)
+                cont.countries.forEach(country => {
+                    // get the covid info for this country
+                    let countryData;
+                    let i = 0;
+                    while (!countryData && i < covidData.data.length) {
+                        if (country.code === covidData.data[i].code){
+                            countryData = covidData.data[i];
+                            country.setCovidInfo(countryData.latest_data.confirmed, countryData.latest_data.deaths, countryData.latest_data.recovered, countryData.latest_data.critical, countryData.latest_data.deaths + countryData.latest_data.confirmed + countryData.latest_data.recovered, countryData.today.confirmed, countryData.latest_data.deaths, countryData.today.deaths, countryData.latest_data.recovered);//????????????????
+                        }
+
+                        i++;
+                    }
+                    
+                })
+            })
         }
 
         function addContinentsBtns(continents) {
