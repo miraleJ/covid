@@ -6,16 +6,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js" integrity="sha512-hZf9Qhp3rlDJBvAKvmiG+goaaKRZA6LKUO35oK6EsM0/kjPK32Yw7URqrq3Q+Nvbbt8Usss+IekL7CRn83dYmw==" crossorigin="anonymous"></script>
+    <style>
+        .which-data-btns {
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <h1>
         Covid-19 Info From Around The World
     </h1>
-    <div class="continents-btns">
-
+    <div class="continents-btns"></div>
+    <div class="which-data-btns">
+        <button class="which-data-btn">Confirmed Cases</button>
+        <button class="which-data-btn">Number of Deaths</button>
+        <button class="which-data-btn">Number of Recovered</button>
+        <button class="which-data-btn">Number of Critical Condition</button>
     </div>
-    <canvas id="myChart" width="400" height="400"></canvas>
-
+    <div class="graph">
+        <canvas id="myChart" width="400" height="400"></canvas>
+    </div>
+    <div class="countries-btns"></div>
 
     
     
@@ -73,12 +84,12 @@
             addContinentsBtns(continents);
 
             // add events listeners
-            document.querySelector('.continent-btn').addEventListener('click', continentHandler);
+            document.querySelector('.continents-btns').addEventListener('click', continentHandler);
             // document.querySelector('.continent-btn-info').addEventListener('click', continentInfoHandler);
             // document.querySelector('.country-btn').addEventListener('click',countryHandler); //TODO
         })()
         
-        async function createContinentArr() { //TODO
+        async function createContinentArr() {
             const countryData = await fetchAndJson(`${proxy}=${countriesAPI}`);
             return continents = countryData.reduce(fromAPIToContinentsArr, []);
         }
@@ -122,7 +133,7 @@
             const contDiv = document.querySelector('.continents-btns');
             continents.forEach(continent => {
                 // if there is a name of continent
-                if (continent.name) {
+                if (continent.name != '') {
                     const btn = document.createElement('button')
                     btn.innerText = `${continent.name}`;
                     btn.classList.add('continent-btn');
@@ -131,11 +142,65 @@
             });
         }
 
-        function continentHandler() {
-            // check which continent is it
-            // display the continent info - (confirmed/deaths/recovered/critical)
+        function createContinentChart(cont, whichData) {
+            
+            var ctx = document.getElementById('myChart');
 
-            // add the countries of the continent
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: cont.countries.map(countryData => countryData.name),
+                    datasets: [{
+                        label: '# of Votes',
+                        data: cont.countries.map(countryData => countryData[whichData]),
+                        backgroundColor: [
+                            'rgba(0, 99, 132, 0.2)',
+                            'rgba(0, 0, 0, 0.2)',
+                            'rgba(255, 255, 255, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+
+        function continentHandler() {
+            // check which continent was clicked
+            const chosenCont = continents.find(cont => cont.name === (event.target.innerText));
+            // display the continent info - (confirmed/deaths/recovered/critical)
+            createContinentChart(chosenCont, 'confirmed');
+            // display the cases buttons
+            document.querySelector('.which-data-btns').style = 'display: inline-block;'
+            // remove old btns
+            const countriesBtns = document.querySelector('.countries-btns');
+            countriesBtns.innerText = '';
+            // add buttons for the countries of the continent
+            chosenCont.countries.forEach(country => {
+                const countryBtn = document.createElement('button');
+                countryBtn.classList.add('case-btn');
+                countryBtn.innerText = country.name;
+                countriesBtns.appendChild(countryBtn);
+            });
         }
 
         function countryHandler() {
