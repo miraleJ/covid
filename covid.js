@@ -55,7 +55,7 @@
             // add events listeners
             document.querySelector('.continents-btns').addEventListener('click', continentHandler);
             document.querySelector('.which-data-btns').addEventListener('click', whichDataHandler);
-            document.querySelector('.country-btns').addEventListener('click',countryHandler); 
+            //document.querySelector('.country-btns').addEventListener('click',countryHandler); 
         })()
         
         async function createContinentArr() {
@@ -112,10 +112,13 @@
         }
 
         function createContinentChart(cont, whichData) {
-            
-            var ctx = document.getElementById('myChart');
+            // destroy the old chart
+            let ctx = document.querySelector('.graph');
+            ctx.innerHTML = '';
+            ctx.innerHTML = `<canvas id="myChart" width="400" height="400"></canvas>`;
+            ctx = ctx.firstElementChild;
 
-            var myChart = new Chart(ctx, {
+            let myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: cont.countries.map(countryData => countryData.name),
